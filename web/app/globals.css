@@ -1,13 +1,14 @@
 /**
  * @file globals.css
- * @description Design System Neo-Brutalismo Puro Monocromático (Maximalismo Antidesign).
+ * @description Design System Acid Neo-Brutalismo / Maximalismo Antidesign.
  *
- * DIRETRIZES:
- * - Paleta estrita P&B (#000000 e #FFFFFF)
- * - Bordas espessas (2px a 4px sólidas brancas)
- * - Zero cantos arredondados (rounded-none em tudo)
- * - Sombras duras de projeção angular (sem blur)
- * - Tipografia mista: Sans-serif Display pesada + Monospace técnica
+ * PALETA INDUSTRIAL DE SINAL:
+ * - Base: #000000 / #050505 e #FFFFFF
+ * - Brand: #CCFF00 (Acid Lime)
+ * - Valid: #00FF66 (Cyber Green)
+ * - Invalid: #FF2A55 (Signal Red)
+ * - Warning: #FFDE00 (Hazard Yellow)
+ * - Tech: #00F0FF (Electric Cyan)
  */
 
 @import "tailwindcss";
@@ -17,7 +18,7 @@
   *::before,
   *::after {
     box-sizing: border-box;
-    border-radius: 0 !important; /* Neo-Brutalismo: sem arredondamentos */
+    border-radius: 0 !important; /* Neo-Brutalismo: zero arredondamentos */
   }
 
   html {
@@ -38,102 +39,124 @@
     line-height: 1.5;
   }
 
-  /* Foco nítido de alto contraste para WCAG AAA */
+  /* Foco nítido com Acid Lime para WCAG AAA */
   :focus-visible {
-    outline: 3px solid #ffffff;
+    outline: 3px solid #ccff00;
     outline-offset: 3px;
   }
 
-  /* Seleção de texto invertida pura */
+  /* Seleção de texto de alto impacto */
   ::selection {
-    background-color: #ffffff;
+    background-color: #ccff00;
     color: #000000;
   }
 }
 
 /* =========================================
-   BACKGROUNDS & TEXTURAS INDUSTRIAIS
+   TEXTURAS E PADRÕES INDUSTRIAIS
    ========================================= */
 .bg-grid-industrial {
   background-color: #000000;
-  background-image: radial-gradient(#ffffff 1px, transparent 1px);
+  background-image: radial-gradient(rgba(255, 255, 255, 0.25) 1px, transparent 1px);
   background-size: 24px 24px;
 }
 
-.bg-stripes-hazard {
+.bg-grid-acid {
+  background-color: #050505;
+  background-image: radial-gradient(rgba(204, 255, 0, 0.2) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+.bg-stripes-hazard-acid {
   background: repeating-linear-gradient(
     -45deg,
     #000000,
     #000000 12px,
-    #ffffff 12px,
-    #ffffff 24px
+    #ccff00 12px,
+    #ccff00 24px
   );
 }
 
-.bg-stripes-hazard-invert {
+.bg-stripes-hazard-red {
   background: repeating-linear-gradient(
     -45deg,
-    #ffffff,
-    #ffffff 12px,
+    #000000,
     #000000 12px,
-    #000000 24px
+    #ff2a55 12px,
+    #ff2a55 24px
   );
 }
 
 /* =========================================
-   SOMBRAS DURAS PROJETADAS (ANGULAR HARD SHADOWS)
+   SOMBRAS DURAS PROJETADAS (ANGULAR PROJECTION)
    ========================================= */
-.shadow-brutal-sm {
-  box-shadow: 3px 3px 0px 0px #ffffff;
-}
-
-.shadow-brutal {
+.shadow-brutal-white {
   box-shadow: 6px 6px 0px 0px #ffffff;
 }
 
-.shadow-brutal-lg {
+.shadow-brutal-white-lg {
   box-shadow: 10px 10px 0px 0px #ffffff;
 }
 
-.shadow-brutal-invert {
+.shadow-brutal-lime {
+  box-shadow: 6px 6px 0px 0px #ccff00;
+}
+
+.shadow-brutal-lime-lg {
+  box-shadow: 10px 10px 0px 0px #ccff00;
+}
+
+.shadow-brutal-green {
+  box-shadow: 6px 6px 0px 0px #00ff66;
+}
+
+.shadow-brutal-red {
+  box-shadow: 6px 6px 0px 0px #ff2a55;
+}
+
+.shadow-brutal-cyan {
+  box-shadow: 6px 6px 0px 0px #00f0ff;
+}
+
+.shadow-brutal-black {
   box-shadow: 6px 6px 0px 0px #000000;
 }
 
-.shadow-brutal-invert-lg {
-  box-shadow: 10px 10px 0px 0px #000000;
+.shadow-brutal-black-sm {
+  box-shadow: 3px 3px 0px 0px #000000;
 }
 
-/* Interações com feedback tátil instantâneo */
-.btn-brutal {
+/* Botões Brutalistas com Feedback Tátil Imediato */
+.btn-acid {
   transition: transform 0.1s cubic-bezier(0, 0, 0.2, 1), box-shadow 0.1s cubic-bezier(0, 0, 0.2, 1);
 }
 
-.btn-brutal:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 8px 8px 0px 0px #ffffff;
+.btn-acid:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 9px 9px 0px 0px #ffffff;
 }
 
-.btn-brutal:active {
+.btn-acid:active {
   transform: translate(3px, 3px);
   box-shadow: 2px 2px 0px 0px #ffffff;
 }
 
-.btn-brutal-invert {
+.btn-acid-invert {
   transition: transform 0.1s cubic-bezier(0, 0, 0.2, 1), box-shadow 0.1s cubic-bezier(0, 0, 0.2, 1);
 }
 
-.btn-brutal-invert:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 8px 8px 0px 0px #000000;
+.btn-acid-invert:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 9px 9px 0px 0px #000000;
 }
 
-.btn-brutal-invert:active {
+.btn-acid-invert:active {
   transform: translate(3px, 3px);
   box-shadow: 2px 2px 0px 0px #000000;
 }
 
 /* =========================================
-   ANIMAÇÕES MARQUEE CONTÍNUA
+   MARQUEE CONTÍNUO (NORMAL & REVERSE)
    ========================================= */
 @keyframes marquee {
   0% {
@@ -144,22 +167,39 @@
   }
 }
 
+@keyframes marquee-reverse {
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0%);
+  }
+}
+
 .animate-marquee {
   display: flex;
   width: max-content;
-  animation: marquee 25s linear infinite;
+  animation: marquee 24s linear infinite;
 }
 
-.animate-marquee:hover {
+.animate-marquee-reverse {
+  display: flex;
+  width: max-content;
+  animation: marquee-reverse 26s linear infinite;
+}
+
+.animate-marquee:hover,
+.animate-marquee-reverse:hover {
   animation-play-state: paused;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-marquee {
+  .animate-marquee,
+  .animate-marquee-reverse {
     animation: none;
   }
-  .btn-brutal:hover,
-  .btn-brutal-invert:hover {
+  .btn-acid:hover,
+  .btn-acid-invert:hover {
     transform: none;
   }
 }
