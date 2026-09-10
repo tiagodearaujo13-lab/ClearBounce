@@ -1,243 +1,165 @@
 /**
  * @file globals.css
- * @description Estilos globais com TailwindCSS v4 + design system customizado.
+ * @description Design System Neo-Brutalismo Puro Monocromático (Maximalismo Antidesign).
  *
- * POR QUÊ Tailwind v4?
- * - CSS-first config: não precisa de tailwind.config.js.
- * - Engine novo com performance até 10x melhor em builds.
- * - Suporta @theme para definir tokens CSS diretamente.
+ * DIRETRIZES:
+ * - Paleta estrita P&B (#000000 e #FFFFFF)
+ * - Bordas espessas (2px a 4px sólidas brancas)
+ * - Zero cantos arredondados (rounded-none em tudo)
+ * - Sombras duras de projeção angular (sem blur)
+ * - Tipografia mista: Sans-serif Display pesada + Monospace técnica
  */
 
 @import "tailwindcss";
 
-/* =========================================
-   DESIGN TOKENS — Sistema de cores e tipografia
-   ========================================= */
-@theme {
-  /* Paleta principal — azul profundo (confiança, tecnologia) */
-  --color-primary-50: #eff6ff;
-  --color-primary-100: #dbeafe;
-  --color-primary-200: #bfdbfe;
-  --color-primary-300: #93c5fd;
-  --color-primary-400: #60a5fa;
-  --color-primary-500: #3b82f6;
-  --color-primary-600: #2563eb;
-  --color-primary-700: #1d4ed8;
-  --color-primary-800: #1e40af;
-  --color-primary-900: #1e3a8a;
-  --color-primary-950: #172554;
-
-  /* Paleta de sucesso — verde */
-  --color-success-400: #4ade80;
-  --color-success-500: #22c55e;
-  --color-success-600: #16a34a;
-
-  /* Paleta de erro — vermelho */
-  --color-danger-400: #f87171;
-  --color-danger-500: #ef4444;
-  --color-danger-600: #dc2626;
-
-  /* Paleta de aviso — âmbar */
-  --color-warning-400: #fbbf24;
-  --color-warning-500: #f59e0b;
-  --color-warning-600: #d97706;
-
-  /* Surface — cores de fundo para dark mode */
-  --color-surface-50: #f8fafc;
-  --color-surface-100: #f1f5f9;
-  --color-surface-200: #e2e8f0;
-  --color-surface-700: #1e293b;
-  --color-surface-800: #0f172a;
-  --color-surface-900: #020617;
-  --color-surface-950: #010313;
-
-  /* Tipografia — fonte Inter para UI moderna */
-  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
-
-  /* Sombras premium com blur controlado */
-  --shadow-glow: 0 0 40px rgba(59, 130, 246, 0.15);
-  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-  --shadow-card-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-}
-
-/* =========================================
-   BASE — Reset e estilos globais
-   ========================================= */
 @layer base {
   *,
   *::before,
   *::after {
     box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+    border-radius: 0 !important; /* Neo-Brutalismo: sem arredondamentos */
   }
 
   html {
     scroll-behavior: smooth;
+    background-color: #000000;
+    color: #ffffff;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
   }
 
   body {
-    font-family: var(--font-sans);
-    background-color: var(--color-surface-950);
-    color: var(--color-surface-50);
-    line-height: 1.6;
+    background-color: #000000;
+    color: #ffffff;
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     min-height: 100vh;
+    overflow-x: hidden;
+    line-height: 1.5;
   }
 
-  /* Foco visível para acessibilidade WCAG AA */
+  /* Foco nítido de alto contraste para WCAG AAA */
   :focus-visible {
-    outline: 2px solid var(--color-primary-500);
-    outline-offset: 2px;
-    border-radius: 4px;
+    outline: 3px solid #ffffff;
+    outline-offset: 3px;
   }
 
-  /* Links acessíveis */
-  a {
-    color: var(--color-primary-400);
-    text-decoration: none;
-    transition: color 0.2s ease;
-  }
-
-  a:hover {
-    color: var(--color-primary-300);
+  /* Seleção de texto invertida pura */
+  ::selection {
+    background-color: #ffffff;
+    color: #000000;
   }
 }
 
 /* =========================================
-   COMPONENTES — Classes reutilizáveis
+   BACKGROUNDS & TEXTURAS INDUSTRIAIS
    ========================================= */
-@layer components {
-  /* Glassmorphism card — efeito vidro fosco premium */
-  .glass-card {
-    background: rgba(15, 23, 42, 0.6);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 16px;
-    transition: all 0.3s ease;
-  }
+.bg-grid-industrial {
+  background-color: #000000;
+  background-image: radial-gradient(#ffffff 1px, transparent 1px);
+  background-size: 24px 24px;
+}
 
-  .glass-card:hover {
-    border-color: rgba(59, 130, 246, 0.3);
-    box-shadow: var(--shadow-glow);
-  }
+.bg-stripes-hazard {
+  background: repeating-linear-gradient(
+    -45deg,
+    #000000,
+    #000000 12px,
+    #ffffff 12px,
+    #ffffff 24px
+  );
+}
 
-  /* Gradiente hero — fundo animado */
-  .gradient-hero {
-    background: linear-gradient(
-      135deg,
-      var(--color-surface-950) 0%,
-      var(--color-primary-950) 50%,
-      var(--color-surface-900) 100%
-    );
-  }
-
-  /* Gradiente de texto */
-  .text-gradient {
-    background: linear-gradient(
-      135deg,
-      var(--color-primary-400),
-      var(--color-primary-200)
-    );
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-
-  /* Grid de partículas decorativas (background) */
-  .grid-pattern {
-    background-image: radial-gradient(
-      circle at 1px 1px,
-      rgba(255, 255, 255, 0.05) 1px,
-      transparent 0
-    );
-    background-size: 40px 40px;
-  }
-
-  /* Badge de status com cores semânticas */
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 12px;
-    border-radius: 9999px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.025em;
-    text-transform: uppercase;
-  }
-
-  .badge-valid {
-    background: rgba(34, 197, 94, 0.15);
-    color: var(--color-success-400);
-    border: 1px solid rgba(34, 197, 94, 0.3);
-  }
-
-  .badge-invalid {
-    background: rgba(239, 68, 68, 0.15);
-    color: var(--color-danger-400);
-    border: 1px solid rgba(239, 68, 68, 0.3);
-  }
-
-  .badge-disposable {
-    background: rgba(245, 158, 11, 0.15);
-    color: var(--color-warning-400);
-    border: 1px solid rgba(245, 158, 11, 0.3);
-  }
-
-  .badge-unknown {
-    background: rgba(148, 163, 184, 0.15);
-    color: #94a3b8;
-    border: 1px solid rgba(148, 163, 184, 0.3);
-  }
+.bg-stripes-hazard-invert {
+  background: repeating-linear-gradient(
+    -45deg,
+    #ffffff,
+    #ffffff 12px,
+    #000000 12px,
+    #000000 24px
+  );
 }
 
 /* =========================================
-   ANIMAÇÕES — Micro-interações
+   SOMBRAS DURAS PROJETADAS (ANGULAR HARD SHADOWS)
    ========================================= */
-@layer utilities {
-  /* Animação de entrada suave */
-  .animate-fade-in {
-    animation: fadeIn 0.5s ease-out forwards;
-  }
-
-  .animate-slide-up {
-    animation: slideUp 0.6s ease-out forwards;
-  }
-
-  .animate-pulse-glow {
-    animation: pulseGlow 2s ease-in-out infinite;
-  }
+.shadow-brutal-sm {
+  box-shadow: 3px 3px 0px 0px #ffffff;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+.shadow-brutal {
+  box-shadow: 6px 6px 0px 0px #ffffff;
 }
 
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.shadow-brutal-lg {
+  box-shadow: 10px 10px 0px 0px #ffffff;
 }
 
-@keyframes pulseGlow {
-  0%,
+.shadow-brutal-invert {
+  box-shadow: 6px 6px 0px 0px #000000;
+}
+
+.shadow-brutal-invert-lg {
+  box-shadow: 10px 10px 0px 0px #000000;
+}
+
+/* Interações com feedback tátil instantâneo */
+.btn-brutal {
+  transition: transform 0.1s cubic-bezier(0, 0, 0.2, 1), box-shadow 0.1s cubic-bezier(0, 0, 0.2, 1);
+}
+
+.btn-brutal:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 8px 8px 0px 0px #ffffff;
+}
+
+.btn-brutal:active {
+  transform: translate(3px, 3px);
+  box-shadow: 2px 2px 0px 0px #ffffff;
+}
+
+.btn-brutal-invert {
+  transition: transform 0.1s cubic-bezier(0, 0, 0.2, 1), box-shadow 0.1s cubic-bezier(0, 0, 0.2, 1);
+}
+
+.btn-brutal-invert:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 8px 8px 0px 0px #000000;
+}
+
+.btn-brutal-invert:active {
+  transform: translate(3px, 3px);
+  box-shadow: 2px 2px 0px 0px #000000;
+}
+
+/* =========================================
+   ANIMAÇÕES MARQUEE CONTÍNUA
+   ========================================= */
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
   100% {
-    box-shadow: 0 0 20px rgba(59, 130, 246, 0.1);
+    transform: translateX(-50%);
   }
-  50% {
-    box-shadow: 0 0 40px rgba(59, 130, 246, 0.25);
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 25s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee {
+    animation: none;
+  }
+  .btn-brutal:hover,
+  .btn-brutal-invert:hover {
+    transform: none;
   }
 }
