@@ -69,7 +69,7 @@ export class SmtpVerifier {
     this.options = {
       heloDomain: options?.heloDomain ?? process.env.SMTP_HELO_DOMAIN ?? 'cleanmail.com.br',
       fromEmail: options?.fromEmail ?? process.env.SMTP_FROM_EMAIL ?? 'verify@cleanmail.com.br',
-      timeoutMs: options?.timeoutMs ?? Number(process.env.SMTP_TIMEOUT_MS) || 7500,
+      timeoutMs: options?.timeoutMs ?? (Number(process.env.SMTP_TIMEOUT_MS) || 7500),
     };
   }
 
@@ -266,7 +266,7 @@ export class SmtpVerifier {
     // Nenhum MX respondeu
     return {
       status: VerificationStatus.UNKNOWN,
-      reason: 'Nenhum servidor MX respondeu dentro do timeout.',
+      reason: 'Verificação SMTP inconclusiva: nenhum servidor MX respondeu dentro do timeout.',
     };
   }
 

@@ -52,13 +52,15 @@ vi.mock('node:dns/promises', () => ({
 describe('SmtpVerifier', () => {
   let verifier: SmtpVerifier;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     verifier = new SmtpVerifier({
       heloDomain: 'test.cleanmail.com',
       fromEmail: 'verify@test.cleanmail.com',
       timeoutMs: 3000,
     });
     vi.clearAllMocks();
+    const { disposableStore } = await import('../src/services/DisposableStore.js');
+    vi.mocked(disposableStore.isDisposable).mockReturnValue(false);
   });
 
   // =========================================
@@ -84,7 +86,7 @@ describe('SmtpVerifier', () => {
     });
 
     it('deve rejeitar e-mail com mais de 254 caracteres', async () => {
-      const longEmail = 'a'.repeat(245) + '@test.com';
+      const longEmail = 'a'.repeat(246) + '@test.com'; // 246 + 9 = 255 chars (> 254)
       const result = await verifier.verify(longEmail);
       expect(result.status).toBe(VerificationStatus.INVALID);
       expect(result.stage).toBe('syntax');

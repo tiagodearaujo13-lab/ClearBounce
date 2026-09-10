@@ -40,18 +40,22 @@ const DANGEROUS_PREFIXES = ['=', '+', '-', '@', '\t', '\r'];
 export function sanitizeField(field: string): string {
   if (typeof field !== 'string') return String(field);
 
-  const trimmed = field.trim();
-
   /**
-   * POR QUÊ verificar o primeiro caractere APÓS trim?
-   * - Um atacante poderia usar "  =CMD(...)" com espaços antes.
-   * - Trim garante que a verificação funciona independente de padding.
+   * POR QUÊ verificar antes e depois do trim?
+   * - Se o campo inicia diretamente com TAB (\t) ou outro prefixo perigoso,
+   *   mantém o campo original prefixado com apóstrofo: '\t=cmd...
+   * - Se contém espaços antes da fórmula (ex: "  =1+1"), faz o trim e sanitiza: '=1+1
    */
+  if (DANGEROUS_PREFIXES.some((prefix) => field.startsWith(prefix))) {
+    return `'${field}`;
+  }
+
+  const trimmed = field.trim();
   if (DANGEROUS_PREFIXES.some((prefix) => trimmed.startsWith(prefix))) {
     return `'${trimmed}`;
   }
 
-  return trimmed;
+  return field;
 }
 
 /**
