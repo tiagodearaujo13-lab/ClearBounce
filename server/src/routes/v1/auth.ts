@@ -182,7 +182,7 @@ export async function authRoutes(fastify: FastifyInstance): Promise<void> {
       const token = jwt.sign(
         { sub: user.id, email: user.email },
         jwtSecret,
-        { expiresIn }
+        { expiresIn: expiresIn as jwt.SignOptions['expiresIn'] }
       );
 
       return reply.send({

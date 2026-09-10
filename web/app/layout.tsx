@@ -22,8 +22,8 @@ import { AuthProvider } from '@/contexts/AuthContext';
  */
 export const metadata: Metadata = {
   title: {
-    default: 'CleanMail — Validação e Limpeza de E-mails',
-    template: '%s | CleanMail',
+    default: 'ClearBounce — Validação Bruta de E-mails',
+    template: '%s | ClearBounce',
   },
   description:
     'Plataforma SaaS para validação e limpeza de listas de e-mails em escala. ' +
@@ -40,8 +40,8 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'pt_BR',
-    siteName: 'CleanMail',
-    title: 'CleanMail — Validação e Limpeza de E-mails',
+    siteName: 'ClearBounce',
+    title: 'ClearBounce — Validação Bruta de E-mails',
     description:
       'Valide e limpe suas listas de e-mails em escala com verificação SMTP segura.',
   },
@@ -74,7 +74,7 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="min-h-screen bg-surface-950 text-surface-50 antialiased">
+      <body className="min-h-screen bg-[#050505] text-white antialiased">
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

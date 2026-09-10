@@ -230,7 +230,10 @@ export default function LandingPage() {
         timeZone.startsWith('Europe/') ||
         languages.some((l) => ['de', 'fr', 'es', 'it', 'nl'].some((code) => l.toLowerCase().startsWith(code)));
 
-      if (isBrazil) {
+      const storedCurrency = window.localStorage.getItem('clearbounce-currency');
+      if (storedCurrency === 'BRL' || storedCurrency === 'EUR' || storedCurrency === 'USD') {
+        setCurrency(storedCurrency);
+      } else if (isBrazil) {
         setCurrency('BRL');
       } else if (isEurope) {
         setCurrency('EUR');
@@ -1024,7 +1027,10 @@ console.log(data.smtpCode); // 250`;
                 {(['BRL', 'EUR', 'USD'] as Currency[]).map((curr) => (
                   <button
                     key={curr}
-                    onClick={() => setCurrency(curr)}
+                    onClick={() => {
+                      setCurrency(curr);
+                      window.localStorage.setItem('clearbounce-currency', curr);
+                    }}
                     className={`font-mono font-black text-xs px-4 py-2 border-2 transition-all ${
                       currency === curr
                         ? 'bg-[#CCFF00] text-black border-white shadow-brutal-black-sm -translate-y-0.5'
@@ -1099,7 +1105,7 @@ console.log(data.smtpCode); // 250`;
 
                     {/* BOTÃO DE CTA */}
                     <Link
-                      href="/register"
+                      href={`/register?plan=${plan.id}&currency=${currency.toLowerCase()}`}
                       className={`font-black text-sm uppercase tracking-wider py-4 px-6 border-4 text-center block transition-all focus-visible:ring-4 focus-visible:ring-[#CCFF00] ${
                         plan.popular
                           ? 'bg-black text-white border-black shadow-brutal-black btn-acid'

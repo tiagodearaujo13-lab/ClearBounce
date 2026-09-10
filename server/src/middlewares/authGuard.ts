@@ -18,7 +18,7 @@
  * 4. Se válido, injeta `request.user` com { id, email }.
  */
 
-import { createHash } from 'node:crypto';
+import { createHash, timingSafeEqual } from 'node:crypto';
 import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import jwt from 'jsonwebtoken';
 import type { JwtPayload } from '../types.js';
@@ -30,7 +30,13 @@ import { createError } from '../utils/errors.js';
  * Usado tanto na criação (para armazenar) quanto na validação (para comparar).
  */
 export function hashApiKey(key: string): string {
-  return createHash('sha256').update(key).digest('hex');
+  return createHash('sha256').update(key, 'utf8').digest('hex');
+}
+
+function hashesEqual(left: string, right: string): boolean {
+  const leftBuffer = Buffer.from(left, 'utf8');
+  const rightBuffer = Buffer.from(right, 'utf8');
+  return leftBuffer.length === rightBuffer.length && timingSafeEqual(leftBuffer, rightBuffer);
 }
 
 /**
@@ -91,7 +97,7 @@ export async function registerAuthGuard(
            * Injeta dados do usuário no request.
            * A partir daqui, qualquer handler pode acessar `request.user`.
            */
-          (request as any).user = {
+          request.user = {
             id: payload.sub,
             email: payload.email,
           };
@@ -129,16 +135,22 @@ export async function registerAuthGuard(
          */
         const keyHash = hashApiKey(apiKey);
 
-        const record = await db
+        const records = await db
           .selectFrom('api_keys')
           .innerJoin('users', 'users.id', 'api_keys.user_id')
-          .select(['users.id as userId', 'users.email as userEmail'])
-          .where('api_keys.key_hash', '=', keyHash)
+          .select(['users.id as userId', 'users.email as userEmail', 'api_keys.key_hash as keyHash'])
           .where('api_keys.revoked_at', 'is', null) // Só aceita chaves não-revogadas
-          .executeTakeFirst();
+          .execute();
 
-        if (record) {
-          (request as any).user = {
+        let matchedRecord: typeof records[number] | undefined;
+        for (const candidate of records) {
+          const matches = hashesEqual(keyHash, candidate.keyHash);
+          if (matches) matchedRecord = candidate;
+        }
+
+        if (matchedRecord) {
+          const record = matchedRecord;
+          request.user = {
             id: record.userId,
             email: record.userEmail,
           };

@@ -139,10 +139,8 @@ export interface VerifySingleRequestDto {
 
 /** Body de POST /v1/billing/checkout */
 export interface CheckoutRequestDto {
-  /** Quantidade de créditos a comprar */
-  credits: number;
-  /** ID do plano de preços no Stripe */
-  priceId: string;
+  plan: 'starter' | 'pro' | 'enterprise';
+  currency: 'brl' | 'eur' | 'usd';
 }
 
 // =========================================

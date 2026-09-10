@@ -20,6 +20,7 @@
  * - fc00::/7        → Unique local IPv6 (equivalente a redes privadas)
  */
 
+import { isIP } from 'node:net';
 import { createError } from '../utils/errors.js';
 
 /**
@@ -102,16 +103,21 @@ const BLOCKED_IPV6_PREFIXES: string[] = [
  * isPrivateIp('8.8.8.8')         // false — Google DNS (público)
  */
 export function isPrivateIp(ip: string): boolean {
-  // Normaliza removendo espaços e convertendo para minúsculo
   const normalized = ip.trim().toLowerCase();
+
+  // IPv4-mapped IPv6 (::ffff:127.0.0.1) must receive the same treatment as IPv4.
+  const mappedIpv4 = normalized.match(/^::ffff:(\d{1,3}(?:\.\d{1,3}){3})$/)?.[1];
+  if (mappedIpv4) return isPrivateIp(mappedIpv4);
 
   // =========================================
   // Checagem IPv6
   // =========================================
-  if (normalized.includes(':')) {
-    return BLOCKED_IPV6_PREFIXES.some(
-      (prefix) => normalized === prefix || normalized.startsWith(prefix)
-    );
+  if (isIP(normalized) === 6) {
+    if (normalized === '::' || normalized === '::1') return true;
+    const firstHextet = parseInt(normalized.split(':')[0] || '0', 16);
+    return (firstHextet >= 0xfc00 && firstHextet <= 0xfdff) ||
+      (firstHextet >= 0xfe80 && firstHextet <= 0xfebf) ||
+      BLOCKED_IPV6_PREFIXES.some((prefix) => normalized.startsWith(prefix));
   }
 
   // =========================================

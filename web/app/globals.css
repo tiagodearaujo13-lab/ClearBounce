@@ -31,7 +31,7 @@
   }
 
   body {
-    background-color: #000000;
+    background-color: #050505;
     color: #ffffff;
     font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     min-height: 100vh;
@@ -41,8 +41,8 @@
 
   /* Foco nítido com Acid Lime para WCAG AAA */
   :focus-visible {
-    outline: 3px solid #ccff00;
-    outline-offset: 3px;
+    outline: none;
+    box-shadow: 0 0 0 4px #ccff00;
   }
 
   /* Seleção de texto de alto impacto */

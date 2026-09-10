@@ -108,6 +108,16 @@ async function migrate(): Promise<void> {
     `.execute(db);
     console.log('✅ 004_create_batch_jobs');
 
+    // 005 — Eventos Stripe processados; a chave primária impede replay/recrédito.
+    await sql`
+      CREATE TABLE IF NOT EXISTS stripe_events (
+        event_id VARCHAR(255) PRIMARY KEY,
+        event_type VARCHAR(100) NOT NULL,
+        processed_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `.execute(db);
+    console.log('✅ 005_create_stripe_events');
+
     console.log('\n🎉 Todas as migrations executadas com sucesso!');
   } catch (error) {
     console.error('❌ Erro ao executar migrations:', error);

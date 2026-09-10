@@ -14,10 +14,11 @@
  */
 
 import dns from 'node:dns/promises';
+import type { MxRecord } from 'node:dns';
 
 /** Entrada de cache com timestamp para cálculo de TTL */
 interface CacheEntry {
-  records: dns.MxRecord[];
+  records: MxRecord[];
   cachedAt: number; // timestamp em ms
 }
 
@@ -55,7 +56,7 @@ export class DnsResolver {
    * - O RFC 5321 define que o MX com menor valor de prioridade deve ser tentado primeiro.
    * - Garantimos que o SmtpVerifier sempre tenta o servidor mais preferido.
    */
-  async resolveMx(domain: string): Promise<dns.MxRecord[]> {
+  async resolveMx(domain: string): Promise<MxRecord[]> {
     // =========================================
     // 1. Checar cache válido
     // =========================================
@@ -120,7 +121,7 @@ export class DnsResolver {
    */
   private async resolveMxWithTimeout(
     domain: string
-  ): Promise<dns.MxRecord[]> {
+  ): Promise<MxRecord[]> {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), this.timeoutMs);
 

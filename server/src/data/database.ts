@@ -14,7 +14,7 @@
  * - Pool mantém conexões abertas e reutiliza — latência quase zero por query.
  */
 
-import { Kysely, PostgresDialect } from 'kysely';
+import { Generated, Kysely, PostgresDialect } from 'kysely';
 import pg from 'pg';
 
 const { Pool } = pg;
@@ -31,39 +31,45 @@ const { Pool } = pg;
  */
 
 export interface UsersTable {
-  id: string;
+  id: Generated<string>;
   email: string;
   password_hash: string;
-  created_at: Date;
-  updated_at: Date;
+  created_at: Generated<Date>;
+  updated_at: Generated<Date>;
 }
 
 export interface ApiKeysTable {
-  id: string;
+  id: Generated<string>;
   user_id: string;
   key_hash: string;
   name: string;
-  created_at: Date;
+  created_at: Generated<Date>;
   revoked_at: Date | null;
 }
 
 export interface CreditsTable {
-  id: string;
+  id: Generated<string>;
   user_id: string;
   balance: number;
-  updated_at: Date;
+  updated_at: Generated<Date>;
 }
 
 export interface BatchJobsTable {
-  id: string;
+  id: Generated<string>;
   user_id: string;
   status: string;
   total_emails: number;
   processed_emails: number;
   file_path: string;
   result_path: string | null;
-  created_at: Date;
+  created_at: Generated<Date>;
   completed_at: Date | null;
+}
+
+export interface StripeEventsTable {
+  event_id: string;
+  event_type: string;
+  processed_at: Generated<Date>;
 }
 
 /** Interface raiz que mapeia nomes de tabelas para seus tipos */
@@ -72,6 +78,7 @@ export interface Database {
   api_keys: ApiKeysTable;
   credits: CreditsTable;
   batch_jobs: BatchJobsTable;
+  stripe_events: StripeEventsTable;
 }
 
 // =========================================

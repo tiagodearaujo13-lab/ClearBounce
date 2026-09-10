@@ -1,82 +1,84 @@
-/**
- * @module StripeService
- * @description Serviço de integração com Stripe para gerenciamento de pagamentos.
- *
- * POR QUÊ isolar em serviço?
- * - Centraliza toda a lógica de interação com Stripe.
- * - Facilita mock em testes (substituir este módulo por fake).
- * - Quando adicionar novos métodos de pagamento, só altera aqui.
- *
- * NOTA: No MVP, a maioria da lógica está inline nas rotas de billing.
- * Este serviço serve como ponto de extensão para funcionalidades futuras:
- * - Gerenciamento de assinaturas (subscription)
- * - Portal do cliente Stripe
- * - Invoices e recibos
- * - Reembolsos
- */
-
 import Stripe from 'stripe';
 import { createError } from '../utils/errors.js';
 
-let stripeInstance: Stripe | null = null;
+export type Plan = 'starter' | 'pro' | 'enterprise';
+export type Currency = 'brl' | 'eur' | 'usd';
+
+export const PLANS: readonly Plan[] = ['starter', 'pro', 'enterprise'];
+export const CURRENCIES: readonly Currency[] = ['brl', 'eur', 'usd'];
+
+export const CREDITS_BY_PLAN: Record<Plan, number> = {
+  starter: 5_000,
+  pro: 25_000,
+  enterprise: 100_000,
+};
 
 /**
- * Retorna instância singleton do cliente Stripe.
- *
- * POR QUÊ singleton?
- * - O cliente Stripe é stateless, mas instanciar múltiplas vezes é desperdício.
- * - Singleton garante que a API Key é validada uma única vez.
+ * Price IDs devem ser fornecidos por ambiente; nunca aceite um Price ID vindo do cliente.
+ * O fallback vazio faz a aplicação falhar de forma explícita quando o catálogo não foi configurado.
  */
+export const STRIPE_PRICE_IDS: Record<Plan, Record<Currency, string>> = {
+  starter: {
+    brl: process.env.STRIPE_PRICE_STARTER_BRL ?? '',
+    eur: process.env.STRIPE_PRICE_STARTER_EUR ?? '',
+    usd: process.env.STRIPE_PRICE_STARTER_USD ?? '',
+  },
+  pro: {
+    brl: process.env.STRIPE_PRICE_PRO_BRL ?? '',
+    eur: process.env.STRIPE_PRICE_PRO_EUR ?? '',
+    usd: process.env.STRIPE_PRICE_PRO_USD ?? '',
+  },
+  enterprise: {
+    brl: process.env.STRIPE_PRICE_ENTERPRISE_BRL ?? '',
+    eur: process.env.STRIPE_PRICE_ENTERPRISE_EUR ?? '',
+    usd: process.env.STRIPE_PRICE_ENTERPRISE_USD ?? '',
+  },
+};
+
+let stripeInstance: Stripe | null = null;
+
 export function getStripe(): Stripe {
   if (!stripeInstance) {
     const secretKey = process.env.STRIPE_SECRET_KEY;
     if (!secretKey) {
-      throw createError(
-        'CONFIG_ERROR',
-        'STRIPE_SECRET_KEY não configurada no ambiente.',
-        500
-      );
+      throw createError('CONFIG_ERROR', 'STRIPE_SECRET_KEY não configurada no ambiente.', 500);
     }
-
     stripeInstance = new Stripe(secretKey);
   }
-
   return stripeInstance;
 }
 
-/**
- * Pacotes de créditos disponíveis para compra.
- *
- * POR QUÊ definir aqui e não no banco?
- * - Para MVP, hardcoded é mais simples e rápido.
- * - Os price IDs são criados no dashboard do Stripe.
- * - Para escalar, migrar para tabela `plans` no banco.
- */
-export const CREDIT_PACKAGES = [
-  {
-    name: 'Starter',
-    credits: 1_000,
-    priceId: 'price_starter',
-    description: '1.000 verificações de e-mail',
-  },
-  {
-    name: 'Pro',
-    credits: 10_000,
-    priceId: 'price_pro',
-    description: '10.000 verificações de e-mail',
-  },
-  {
-    name: 'Enterprise',
-    credits: 100_000,
-    priceId: 'price_enterprise',
-    description: '100.000 verificações de e-mail',
-  },
-] as const;
+export function isPlan(value: string): value is Plan {
+  return PLANS.includes(value as Plan);
+}
 
-/**
- * Busca a quantidade de créditos para um priceId.
- */
+export function isCurrency(value: string): value is Currency {
+  return CURRENCIES.includes(value as Currency);
+}
+
+export function getPriceId(plan: Plan, currency: Currency): string {
+  const priceId = STRIPE_PRICE_IDS[plan][currency];
+  if (!priceId) {
+    throw createError(
+      'CONFIG_ERROR',
+      `Price ID Stripe não configurado para ${plan}/${currency}.`,
+      500
+    );
+  }
+  return priceId;
+}
+
+export function getCreditsForPlan(plan: Plan): number {
+  return CREDITS_BY_PLAN[plan];
+}
+
 export function getCreditsForPrice(priceId: string): number | null {
-  const pkg = CREDIT_PACKAGES.find((p) => p.priceId === priceId);
-  return pkg?.credits ?? null;
+  for (const plan of PLANS) {
+    for (const currency of CURRENCIES) {
+      if (STRIPE_PRICE_IDS[plan][currency] === priceId && priceId.length > 0) {
+        return CREDITS_BY_PLAN[plan];
+      }
+    }
+  }
+  return null;
 }

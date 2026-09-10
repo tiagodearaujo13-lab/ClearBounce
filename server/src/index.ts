@@ -48,16 +48,38 @@ async function bootstrap(): Promise<void> {
     },
   });
 
+  // Preserva o corpo bruto para validação criptográfica do Stripe e ainda
+  // entrega JSON normal às demais rotas.
+  fastify.removeContentTypeParser('application/json');
+  fastify.addContentTypeParser(
+    'application/json',
+    { parseAs: 'string' },
+    (request, body, done) => {
+      try {
+        const raw = typeof body === 'string' ? body : body.toString('utf8');
+        (request as unknown as { rawBody?: Buffer }).rawBody = Buffer.from(raw, 'utf8');
+        done(null, JSON.parse(raw));
+      } catch {
+        done(new Error('JSON inválido'));
+      }
+    },
+  );
+
   // =========================================
   // 1. HELMET — Headers de segurança HTTP
   // =========================================
   await fastify.register(helmet, {
-    /**
-     * POR QUÊ desabilitar contentSecurityPolicy?
-     * - Esta é uma API pura (sem HTML servido), CSP não se aplica aqui.
-     * - Se servíssemos uma SPA, habilitaríamos com diretivas específicas.
-     */
-    contentSecurityPolicy: false,
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'none'"],
+        frameAncestors: ["'none'"],
+        baseUri: ["'none'"],
+        formAction: ["'none'"],
+      },
+    },
+    hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
+    frameguard: { action: 'deny' },
+    noSniff: true,
   });
 
   // =========================================
