@@ -17,6 +17,7 @@ const STATUS_BADGE: Record<string, string> = {
   disposable: 'badge-disposable',
   unknown: 'badge-unknown',
   security_block: 'badge-invalid',
+  unverifiable_network_blocked: 'badge-unknown',
 };
 
 const STATUS_LABEL: Record<string, string> = {
@@ -24,6 +25,7 @@ const STATUS_LABEL: Record<string, string> = {
   invalid: 'Inválido',
   disposable: 'Descartável',
   unknown: 'Inconclusivo',
+  unverifiable_network_blocked: 'SMTP indisponível no ambiente',
   security_block: 'Bloqueado (SSRF)',
 };
 
@@ -41,6 +43,25 @@ export default function VerifyPage() {
   // =========================================
   const upload = useFileUpload();
   const batch = useBatchProgress(upload.jobId);
+
+  const [downloadError, setDownloadError] = useState('');
+
+  async function handleBatchDownload(jobId: string) {
+    setDownloadError('');
+    try {
+      const response = await api.get(`/v1/verify/batch/${jobId}/download`, {
+        responseType: 'blob',
+      });
+      const url = URL.createObjectURL(response.data);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `cleanmail_results_${jobId}.csv`;
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      setDownloadError('Não foi possível baixar o resultado. Tente novamente.');
+    }
+  }
 
   async function handleSingleVerify(e: FormEvent) {
     e.preventDefault();
@@ -284,7 +305,11 @@ export default function VerifyPage() {
             {/* Botão de download */}
             {batch.data.status === 'completed' && (
               <a
-                href={`${process.env.NEXT_PUBLIC_API_URL}/v1/verify/batch/${batch.data.id}/download`}
+                href="#"
+                onClick={(event) => {
+                  event.preventDefault();
+                  void handleBatchDownload(batch.data?.id ?? '');
+                }}
                 className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-success-600 py-3 font-semibold text-white transition hover:bg-success-500"
                 download
               >

@@ -52,6 +52,7 @@ export function getStatusLabel(status: string): string {
     disposable: 'Descartável',
     unknown: 'Inconclusivo',
     security_block: 'Bloqueado',
+    unverifiable_network_blocked: 'SMTP indisponível',
     queued: 'Na Fila',
     processing: 'Processando',
     completed: 'Concluído',

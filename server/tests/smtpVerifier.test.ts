@@ -248,8 +248,8 @@ describe('SmtpVerifier', () => {
       });
 
       const result = await verifier.verify('timeout@example.com');
-      expect(result.status).toBe(VerificationStatus.UNKNOWN);
-      expect(result.reason).toContain('inconclusiva');
+      expect(result.status).toBe(VerificationStatus.UNVERIFIABLE_NETWORK_BLOCKED);
+      expect(result.reason).toContain('porta 25');
     });
   });
 

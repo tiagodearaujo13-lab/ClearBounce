@@ -62,6 +62,7 @@ export interface BatchJobsTable {
   processed_emails: number;
   file_path: string;
   result_path: string | null;
+  result_data: string | null;
   created_at: Generated<Date>;
   completed_at: Date | null;
 }
@@ -109,14 +110,16 @@ export const db = new Kysely<Database>({
        * - Cada conexão PostgreSQL consome ~5-10MB de RAM no servidor de banco.
        * - Em escala, ajustar via env var ou usar PgBouncer como connection pooler.
        */
-      max: 10,
+      max: Number(process.env.DB_POOL_MAX) || 10,
+      idleTimeoutMillis: Number(process.env.DB_IDLE_TIMEOUT_MS) || 10_000,
+      connectionTimeoutMillis: Number(process.env.DB_CONNECTION_TIMEOUT_MS) || 5_000,
       /**
        * POR QUÊ ssl em produção?
        * - Conexões sem SSL transmitem dados (incluindo credenciais) em texto puro.
        * - Em produção, o banco está em outro servidor — tráfego atravessa a rede.
        * - rejectUnauthorized: false permite certificados self-signed (comum em Render).
        */
-      ssl: process.env.NODE_ENV === 'production'
+      ssl: process.env.NODE_ENV === 'production' || connectionString.includes('sslmode=require')
         ? { rejectUnauthorized: false }
         : undefined,
     }),

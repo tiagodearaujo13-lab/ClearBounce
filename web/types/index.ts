@@ -9,7 +9,8 @@ export type VerificationStatus =
   | 'invalid'
   | 'disposable'
   | 'unknown'
-  | 'security_block';
+  | 'security_block'
+  | 'unverifiable_network_blocked';
 
 /** Etapa do pipeline de verificação */
 export type VerificationStage = 'syntax' | 'dns' | 'disposable' | 'smtp';

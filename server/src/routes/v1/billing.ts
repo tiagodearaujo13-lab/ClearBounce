@@ -102,7 +102,7 @@ export async function billingRoutes(fastify: FastifyInstance): Promise<void> {
       let event: Stripe.Event;
       try {
         event = getStripe().webhooks.constructEvent(
-          ((request.raw as FastifyRequest['raw'] & { rawBody?: Buffer }).rawBody ?? Buffer.alloc(0)),
+          request.rawBody ?? Buffer.alloc(0),
           signature,
           webhookSecret,
         );

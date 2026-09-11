@@ -27,6 +27,8 @@ export enum VerificationStatus {
   UNKNOWN = 'unknown',
   /** Erro de segurança — IP privado detectado (SSRF bloqueado) */
   SECURITY_BLOCK = 'security_block',
+  /** Falha de rede do host cloud ao acessar SMTP na porta 25 */
+  UNVERIFIABLE_NETWORK_BLOCKED = 'unverifiable_network_blocked',
 }
 
 /**

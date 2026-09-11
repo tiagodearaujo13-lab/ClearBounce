@@ -6,7 +6,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { api } from '@/services/api';
+import { api, API_BASE_URL } from '@/services/api';
 
 interface BatchJob {
   id: string;
@@ -143,7 +143,7 @@ export default function HistoryPage() {
                     <td className="px-6 py-4">
                       {job.status === 'completed' && (
                         <a
-                          href={`${process.env.NEXT_PUBLIC_API_URL}/v1/verify/batch/${job.id}/download`}
+                          href={`${API_BASE_URL}/v1/verify/batch/${job.id}/download`}
                           className="text-sm font-medium text-primary-400 hover:text-primary-300"
                           download
                         >

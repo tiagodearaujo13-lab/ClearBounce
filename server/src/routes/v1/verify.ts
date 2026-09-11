@@ -20,16 +20,19 @@ import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { db } from '../../data/database.js';
 import { smtpVerifier } from '../../services/SmtpVerifier.js';
 import { parseCsv, findEmailColumnIndex } from '../../services/CsvSanitizer.js';
-import { emailVerificationQueue } from '../../jobs/queues.js';
+import { processBatchInline } from '../../jobs/batchVerifyWorker.js';
+import { getEmailVerificationQueue, isServerless, type BatchVerifyJobData } from '../../jobs/queues.js';
 import { registerAuthGuard } from '../../middlewares/authGuard.js';
 import { createError } from '../../utils/errors.js';
-import type { VerifySingleRequestDto, BatchStatus } from '../../types.js';
+import type { VerifySingleRequestDto } from '../../types.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 /** Diretório para armazenar uploads de CSV */
-const UPLOADS_DIR = join(__dirname, '..', '..', '..', 'uploads');
+const UPLOADS_DIR = process.env.VERCEL === '1' || process.env.AWS_LAMBDA_FUNCTION_NAME
+  ? '/tmp/clearbounce/uploads'
+  : join(__dirname, '..', '..', '..', 'uploads');
 
 export async function verifyRoutes(fastify: FastifyInstance): Promise<void> {
   await registerAuthGuard(fastify);
@@ -202,20 +205,33 @@ export async function verifyRoutes(fastify: FastifyInstance): Promise<void> {
         .returning(['id', 'status', 'total_emails', 'created_at'])
         .executeTakeFirstOrThrow();
 
-      // Enfileira no BullMQ
-      await emailVerificationQueue.add('verify-batch', {
+      const jobData: BatchVerifyJobData = {
         jobId: job.id,
         userId: user.id,
         filePath,
         emailColIndex,
         totalEmails,
-      });
+      };
+      const queue = getEmailVerificationQueue();
 
-      return reply.status(202).send({
+      if (queue && !isServerless()) {
+        await queue.add('verify-batch', jobData);
+        return reply.status(202).send({
+          jobId: job.id,
+          status: 'queued',
+          totalEmails,
+          message: `Batch enfileirado com sucesso. ${totalEmails} e-mails serão processados.`,
+        });
+      }
+
+      // Vercel não mantém workers entre requests: processa inline nesta invocação.
+      await processBatchInline(jobData);
+
+      return reply.status(200).send({
         jobId: job.id,
-        status: 'queued',
+        status: 'completed',
         totalEmails,
-        message: `Batch enfileirado com sucesso. ${totalEmails} e-mails serão processados.`,
+        message: `Batch processado. ${totalEmails} e-mails foram verificados.`,
       });
     }
   );
@@ -277,7 +293,7 @@ export async function verifyRoutes(fastify: FastifyInstance): Promise<void> {
 
       const job = await db
         .selectFrom('batch_jobs')
-        .select(['status', 'result_path'])
+        .select(['status', 'result_path', 'result_data'])
         .where('id', '=', jobId)
         .where('user_id', '=', user.id)
         .executeTakeFirst();
@@ -286,7 +302,7 @@ export async function verifyRoutes(fastify: FastifyInstance): Promise<void> {
         throw createError('NOT_FOUND', 'Batch job não encontrado.', 404);
       }
 
-      if (job.status !== 'completed' || !job.result_path) {
+      if (job.status !== 'completed' || (!job.result_path && !job.result_data)) {
         throw createError(
           'NOT_READY',
           'O processamento ainda não foi concluído. Verifique o status do batch.',
@@ -294,7 +310,17 @@ export async function verifyRoutes(fastify: FastifyInstance): Promise<void> {
         );
       }
 
-      const fileStream = createReadStream(job.result_path);
+      if (job.result_data) {
+        return reply
+          .header('Content-Type', 'text/csv; charset=utf-8')
+          .header(
+            'Content-Disposition',
+            `attachment; filename="cleanmail_results_${jobId}.csv"`,
+          )
+          .send(job.result_data);
+      }
+
+      const fileStream = createReadStream(job.result_path!);
 
       return reply
         .header('Content-Type', 'text/csv; charset=utf-8')
